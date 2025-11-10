@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generator Opowiadań</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f4f8;
+        color: #333;
+        margin: 0;
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+      }
+      #root {
+        width: 100%;
+        max-width: 800px;
+        margin: 20px;
+        padding: 40px;
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+      h1 {
+        color: #1a73e8;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+      }
+      .input-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+      }
+      #prompt-input {
+        flex-grow: 1;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.3s ease;
+      }
+       #genre-select {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1em;
+        background-color: white;
+        transition: border-color 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+      }
+      #prompt-input:focus, #genre-select:focus, .sort-select:focus {
+        outline: none;
+        border-color: #1a73e8;
+      }
+      button {
+        padding: 15px 30px;
+        background: linear-gradient(45deg, #1a73e8, #4285f4);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        font-weight: bold;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+      .story-output {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        text-align: left;
+        min-height: 100px;
+        white-space: pre-wrap;
+        line-height: 1.6;
+      }
+      .placeholder {
+        color: #888;
+        font-style: italic;
+      }
+       .loader-text {
+        font-style: italic;
+        color: #555;
+        margin-top: 10px;
+      }
+      .save-button {
+        display: block;
+        margin: 20px auto 0;
+        background: linear-gradient(45deg, #28a745, #218838);
+      }
+      .export-button, .gdrive-button {
+        padding: 10px 20px;
+        font-size: 0.9em;
+      }
+      .export-button {
+        background: linear-gradient(45deg, #6c757d, #5a6268);
+      }
+      .gdrive-button {
+         background: linear-gradient(45deg, #ffc107, #ff9800);
+      }
+      .saved-stories-container {
+        margin-top: 40px;
+        text-align: left;
+      }
+      .saved-stories-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .header-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .sort-select {
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.9em;
+        background-color: white;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 0.8em;
+        padding-right: 2.5em;
+      }
+      .saved-stories-container h2 {
+        color: #1a73e8;
+        margin: 0;
+      }
+      .saved-stories-container ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      .saved-story-item {
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .saved-story-item h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 1.1em;
+      }
+       .saved-story-item p {
+        white-space: pre-wrap;
+        line-height: 1.6;
+      }
+      .delete-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        font-size: 16px;
+        line-height: 28px;
+        cursor: pointer;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        transition: background-color 0.2s, transform 0.2s;
+      }
+      .delete-button:hover {
+        background-color: #c82333;
+        transform: scale(1.1);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root">
+      <p>Ładowanie...</p>
+    </div>
+    <script type="module" src="index.tsx"></script>
+  </body>
+</html>
