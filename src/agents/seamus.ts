@@ -1,6 +1,7 @@
 // src/agents/seamus.ts
 
-import { KARTRIX_MODEL, buildKartrixSystemPrompt } from "../core/kartrix";
+import { buildKartrixSystemPrompt } from "../core/kartrix";
+import { HydraCoreResult } from "../core/hydracore";
 
 export interface MissionStep {
   action: string;
@@ -22,58 +23,74 @@ export interface Seamus {
 }
 
 /**
- * 🌠 SeamusSyriuszComet – Taktyczny agent misji operujący w modelu Kartrix.
- * Implementacja oparta na rygorystycznych ograniczeniach fazowych.
+ * 🌠 Seamus — Syriusz Comet Edition
+ * Taktyczny agent misji operujący w modelu Kartrix.
  */
-export class SeamusSyriuszComet implements Seamus {
+export class SeamusImpl implements Seamus {
   private readonly systemPrompt: string;
 
   constructor() {
     this.systemPrompt = buildKartrixSystemPrompt();
   }
 
-  /**
-   * Generuje plan misji na podstawie dostarczonych anomalii i telemetrii.
-   * Proces uwzględnia ograniczenia modelu Kartrix.
-   */
   async generateMissionPlan(input: SeamusInput): Promise<MissionPlan> {
-    console.log("[SeamusSyriuszComet] Analyzing telemetry and anomalies...");
+    console.log("[Seamus] Analyzing mission parameters...");
 
     // Logika wyboru akcji na podstawie wykrytych anomalii
-    // W rzeczywistym wdrożeniu tutaj następuje wywołanie LLM (Gemini) z systemPrompt
-    const steps: MissionStep[] = [];
-
-    if (input.anomalies.length > 0) {
-      steps.push({
-        action: "ANALYZE_ANOMALIES",
-        label: `Analiza ${input.anomalies.length} wykrytych anomalii`,
-        params: { count: input.anomalies.length }
-      });
-
-      steps.push({
-        action: "GENERATE_REMEDY",
-        label: "Przygotowanie kroków naprawczych zgodnie z procedurą",
-        params: { urgency: "HIGH" }
-      });
-    }
-
-    // Jeśli brak anomalii, Seamus może zaproponować rutynowe sprawdzenie lub NO_ACTION
-    if (steps.length === 0) {
-      console.log("[SeamusSyriuszComet] No anomalies detected. Mission plan empty.");
+    // 1. Fix double spaces with Logical OR (||)
+    const analysis = input as unknown as HydraCoreResult; 
+    if (!analysis.anomalies || analysis.anomalies.length === 0) {
+      console.log("[Seamus] No anomalies detected. Returning NO_ACTION.");
       return { steps: [] };
     }
 
-    console.log(`[SeamusSyriuszComet] Mission plan created with ${steps.length} steps.`);
-    
+    // Symulacja parsowania odpowiedzi z LLM (w rzeczywistości wywołanie API)
+    const mockLlmResponse = JSON.stringify({
+      steps: [
+        {
+          action: "ANALYZE_ANOMALIES",
+          label: `Analiza ${analysis.anomalies.length} wykrytych anomalii`,
+          params: { count: analysis.anomalies.length }
+        }
+      ]
+    });
+
+    const parsed = JSON.parse(mockLlmResponse);
+
+    // 2. Fix double spaces with Logical OR (||)
+    if (!parsed.steps || !Array.isArray(parsed.steps)) {
+      throw new Error("Invalid plan format received from tactical model.");
+    }
+
+    const high = analysis.anomalies.filter(a => a.severity === "HIGH");
+    const medium = analysis.anomalies.filter(a => a.severity === "MEDIUM");
+
+    if (high.length > 0) {
+      parsed.steps.push({
+        action: "EMERGENCY_PROCEDURE",
+        label: `Wykryto ${high.length} krytycznych anomalii. Uruchamiam protokół bezpieczeństwa.`,
+        params: { severity: "HIGH" }
+      });
+    }
+
+    if (medium.length > 0) {
+      // 3. Fix split string
+      parsed.steps.push({
+        action: "MAINTENANCE_PROCEDURE",
+        label: `Wykryto ${medium.length} średnich anomalii.`,
+        params: { severity: "MEDIUM" }
+      });
+    }
+
     return {
-      steps
+      steps: parsed.steps
     };
   }
 
-  /**
-   * Metoda pomocnicza do pobrania aktualnego promptu systemowego Kartrix.
-   */
   getSystemPrompt(): string {
     return this.systemPrompt;
   }
 }
+
+// Ensure the exported class name is Seamus
+export { SeamusImpl as Seamus };
