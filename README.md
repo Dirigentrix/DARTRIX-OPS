@@ -65,8 +65,9 @@ To kręgosłup Hydry — trzyma ją w pionie, even gdy świat drży.
 1. Inception — npm install  
    Związanie zależności. Pierwszy oddech systemu.
 
-2. Resonance Key — dodaj GEMINIAPIKEY  
-   Paliwo dla agentowej inteligencji.
+2. Resonance Key — Dodaj GOOGLE_AI_STUDIO_API_KEY  
+   Paliwo dla agentowej inteligencji (Seamus). Pobierz klucz z Google AI Studio (aistudio.google.com).  
+   *DARTRIX‑OPS nie wymaga już konta Vertex AI/GCP Billing.*
 
 3. Activation — npm run dev  
    Uruchomienie pulsu H‑OSC. Hydra otwiera oczy.
